@@ -1,0 +1,69 @@
+<div class="container">
+  <div class="page-header no-print">
+    <div>
+      <span class="eyebrow">Relatórios</span>
+      <h1>Impressão</h1>
+    </div>
+    <button class="btn" (click)="imprimir()">Imprimir</button>
+  </div>
+
+  <div class="tabs no-print">
+    <button
+      class="tab"
+      [class.active]="abaAtiva === 'produtos'"
+      (click)="selecionarAba('produtos')">
+      Produtos
+    </button>
+    <button
+      class="tab"
+      [class.active]="abaAtiva === 'notas'"
+      (click)="selecionarAba('notas')">
+      Notas Fiscais
+    </button>
+  </div>
+
+  <div class="print-header">
+    <h1>{{ abaAtiva === 'produtos' ? 'Relação de Produtos' : 'Relação de Notas Fiscais' }}</h1>
+    <span class="print-date">Emitido em {{ dataEmissao | date: 'dd/MM/yyyy HH:mm' }}</span>
+  </div>
+
+  <div *ngIf="carregando" class="empty">Carregando…</div>
+
+  <section class="card" *ngIf="!carregando && abaAtiva === 'produtos'">
+    <table *ngIf="produtos.length">
+      <thead>
+        <tr>
+          <th>Descrição</th>
+          <th>Saldo</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let produto of produtos">
+          <td>{{ produto.descricao }}</td>
+          <td>{{ produto.saldo }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <div *ngIf="!produtos.length" class="empty">Nenhum produto cadastrado.</div>
+  </section>
+
+  <section class="card" *ngIf="!carregando && abaAtiva === 'notas'">
+    <table *ngIf="notas.length">
+      <thead>
+        <tr>
+          <th>Número</th>
+          <th>Status</th>
+          <th>Produtos</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let nota of notas">
+          <td class="numero-fiscal">{{ nota.numeroFormatado }}</td>
+          <td><span class="stamp" [class]="'stamp-' + nota.status">{{ nota.status }}</span></td>
+          <td>{{ itensDaNota(nota) }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <div *ngIf="!notas.length" class="empty">Nenhuma nota fiscal emitida.</div>
+  </section>
+</div>

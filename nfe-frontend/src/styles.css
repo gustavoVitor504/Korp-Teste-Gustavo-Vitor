@@ -1,0 +1,208 @@
+:root {
+  --paper: #F6F4EC;
+  --paper-raised: #FFFFFF;
+  --ink: #1E2A38;
+  --ink-soft: #55606E;
+  --line: #CFC7AF;
+  --line-soft: #E4DFCF;
+  --stamp-red: #B23A2E;
+  --stamp-red-bg: #F6E5E2;
+  --stamp-green: #2F6D4F;
+  --stamp-green-bg: #E4EFE8;
+  --stamp-amber: #A9740F;
+  --stamp-amber-bg: #F4EAD3;
+
+  --font-display: 'Zilla Slab', Georgia, serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+h1, h2, h3 { font-family: var(--font-display); font-weight: 600; margin: 0 0 4px; }
+
+a { color: inherit; }
+
+button {
+  font-family: var(--font-body);
+  cursor: pointer;
+}
+
+input, select, textarea {
+  font-family: var(--font-body);
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+}
+
+.page-header {
+  border-bottom: 2px solid var(--ink);
+  padding-bottom: 12px;
+  margin-bottom: 28px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.page-header .eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  display: block;
+  margin-bottom: 2px;
+}
+
+.card {
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 24px;
+}
+
+.field {
+  margin-bottom: 18px;
+}
+
+.field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 6px;
+}
+
+.field input[type="text"],
+.field input[type="number"],
+.field select {
+  width: 100%;
+  border: none;
+  border-bottom: 1.5px solid var(--line);
+  background: transparent;
+  padding: 8px 2px;
+  font-size: 16px;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.field input:focus,
+.field select:focus {
+  border-bottom-color: var(--ink);
+}
+
+.field .error {
+  color: var(--stamp-red);
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1.5px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  border-radius: 3px;
+}
+
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.btn-outline {
+  background: transparent;
+  color: var(--ink);
+}
+
+.btn-outline:hover { background: var(--line-soft); }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  text-align: left;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  border-bottom: 1.5px solid var(--ink);
+  padding: 8px 10px;
+}
+
+td {
+  padding: 10px 10px;
+  border-bottom: 1px solid var(--line-soft);
+  font-size: 14px;
+}
+
+.numero-fiscal {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.stamp {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 2px;
+  border: 1px solid transparent;
+  transform: rotate(-2deg);
+}
+
+.stamp-aberta { background: var(--stamp-amber-bg); color: var(--stamp-amber); border-color: var(--stamp-amber); }
+.stamp-fechada { background: var(--stamp-green-bg); color: var(--stamp-green); border-color: var(--stamp-green); }
+.stamp-cancelada { background: var(--stamp-red-bg); color: var(--stamp-red); border-color: var(--stamp-red); }
+
+.toast {
+  margin-bottom: 18px;
+  padding: 10px 14px;
+  border-radius: 3px;
+  font-size: 13px;
+  border: 1px solid;
+}
+
+.toast-ok { background: var(--stamp-green-bg); color: var(--stamp-green); border-color: var(--stamp-green); }
+.toast-erro { background: var(--stamp-red-bg); color: var(--stamp-red); border-color: var(--stamp-red); }
+
+.empty {
+  padding: 32px 0;
+  text-align: center;
+  color: var(--ink-soft);
+  font-size: 13px;
+}
+
+@media print {
+  nav.app-nav, .no-print { display: none !important; }
+  body { background: #fff; }
+  .container { max-width: 100%; padding: 0; }
+  .card { border: none; padding: 0; }
+}

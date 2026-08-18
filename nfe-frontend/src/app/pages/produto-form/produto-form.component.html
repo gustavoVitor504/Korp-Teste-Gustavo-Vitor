@@ -1,0 +1,75 @@
+<div class="container">
+  <div class="page-header">
+    <div>
+      <span class="eyebrow">Cadastro</span>
+      <h1>Produtos</h1>
+    </div>
+  </div>
+
+  <div class="grid">
+    <section class="card">
+      <h2 class="card-title">Novo produto</h2>
+
+      <div *ngIf="mensagem" class="toast" [class.toast-ok]="mensagem.tipo === 'ok'" [class.toast-erro]="mensagem.tipo === 'erro'">
+        {{ mensagem.texto }}
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="salvar()">
+        <div class="field">
+          <label for="codigo">Código</label>
+          <input id="codigo" type="text" formControlName="codigo" placeholder="Ex: PRF-M8-001" autocomplete="off">
+          <div class="error" *ngIf="form.controls.codigo.invalid && form.controls.codigo.touched">
+            Informe o código do produto.
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="descricao">Descrição</label>
+          <input id="descricao" type="text" formControlName="descricao" placeholder="Ex: Parafuso sextavado M8" autocomplete="off">
+          <div class="error" *ngIf="form.controls.descricao.invalid && form.controls.descricao.touched">
+            Informe uma descrição (mínimo 2 caracteres).
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="saldo">Saldo em estoque</label>
+          <input id="saldo" type="number" formControlName="saldo" min="0" step="1">
+          <div class="error" *ngIf="form.controls.saldo.invalid && form.controls.saldo.touched">
+            O saldo não pode ser negativo.
+          </div>
+        </div>
+
+        <button type="submit" class="btn" [disabled]="salvando">
+          {{ salvando ? 'Salvando…' : 'Cadastrar produto' }}
+        </button>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Produtos cadastrados</h2>
+
+      <div *ngIf="carregando" class="empty">Carregando…</div>
+
+      <table *ngIf="!carregando && produtos.length">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Descrição</th>
+            <th>Saldo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let produto of produtos">
+            <td class="numero-fiscal">{{ produto.codigo }}</td>
+            <td>{{ produto.descricao }}</td>
+            <td>{{ produto.saldo }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div *ngIf="!carregando && !produtos.length" class="empty">
+        Nenhum produto cadastrado ainda.
+      </div>
+    </section>
+  </div>
+</div>

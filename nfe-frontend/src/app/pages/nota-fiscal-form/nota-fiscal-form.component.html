@@ -1,0 +1,94 @@
+<div class="container">
+  <div class="page-header">
+    <div>
+      <span class="eyebrow">Cadastro</span>
+      <h1>Notas Fiscais</h1>
+    </div>
+  </div>
+
+  <div *ngIf="mensagem" class="toast" [class.toast-ok]="mensagem.tipo === 'ok'" [class.toast-erro]="mensagem.tipo === 'erro'">
+    {{ mensagem.texto }}
+  </div>
+
+  <div class="grid">
+    <section class="card">
+      <h2 class="card-title">Nova nota fiscal</h2>
+      <p class="hint">
+        A nota nasce com status <strong>Aberta</strong>. O estoque só é
+        debitado quando ela for impressa.
+      </p>
+
+      <div class="field">
+        <label>Produtos e quantidades ({{ totalItensSelecionados }} selecionado(s))</label>
+
+        <div *ngIf="carregando" class="empty">Carregando produtos…</div>
+
+        <ul class="produto-picker" *ngIf="!carregando && produtosDisponiveis.length">
+          <li *ngFor="let produto of produtosDisponiveis">
+            <div class="produto-item">
+              <span class="produto-desc">
+                <span class="produto-codigo">{{ produto.codigo }}</span> — {{ produto.descricao }}
+              </span>
+              <span class="produto-saldo">saldo: {{ produto.saldo }}</span>
+              <input
+                type="number"
+                class="qtd-input"
+                min="0"
+                [max]="produto.saldo"
+                [value]="quantidadeDe(produto.id)"
+                (input)="atualizarQuantidade(produto.id, $any($event.target).value)"
+                placeholder="0">
+            </div>
+          </li>
+        </ul>
+
+        <div *ngIf="!carregando && !produtosDisponiveis.length" class="empty">
+          Cadastre um produto antes de criar uma nota fiscal.
+        </div>
+      </div>
+
+      <button
+        type="button"
+        class="btn"
+        [disabled]="salvando || !produtosDisponiveis.length"
+        (click)="salvar()">
+        {{ salvando ? 'Salvando…' : 'Criar nota fiscal' }}
+      </button>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Notas emitidas</h2>
+
+      <table *ngIf="notas.length">
+        <thead>
+          <tr>
+            <th>Número</th>
+            <th>Status</th>
+            <th>Itens</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let nota of notas">
+            <td class="numero-fiscal">{{ nota.numeroFormatado }}</td>
+            <td><span class="stamp" [class]="'stamp-' + nota.status">{{ nota.status }}</span></td>
+            <td class="itens-cell">{{ itensDaNota(nota) }}</td>
+            <td>
+              <button
+                type="button"
+                class="btn-outline btn-sm"
+                *ngIf="podeImprimir(nota)"
+                [disabled]="imprimindoId === nota.id"
+                (click)="imprimir(nota)">
+                {{ imprimindoId === nota.id ? 'Imprimindo…' : 'Imprimir' }}
+              </button>
+              <span *ngIf="!podeImprimir(nota)" class="sem-acao">—</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div *ngIf="!notas.length" class="empty">Nenhuma nota fiscal emitida ainda.</div>
+    </section>
+  </div>
+</div>
