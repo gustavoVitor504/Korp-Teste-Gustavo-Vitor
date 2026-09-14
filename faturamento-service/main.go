@@ -10,25 +10,25 @@ import (
 )
 
 func main() {
-	db := config.ConnectDatabase()
+	db := config.ConnectDatabase() // aponta para o banco
 
 	if err := db.AutoMigrate(&notafiscal.NotaFiscal{}, &notafiscal.NotaFiscalItem{}); err != nil {
-		log.Fatal("erro ao migrar banco de dados:", err)
-	}
+		log.Fatal("erro ao migrar banco de dados:", err) // fatal para parar server se não conseguir migrar
+	}  // função de migrate para garantir que meu banco tenha as tabelas conforme meus models
 
 	estoqueURL := os.Getenv("ESTOQUE_SERVICE_URL")
 	if estoqueURL == "" {
 		estoqueURL = "http://localhost:8081/api"
 	}
-	client := estoqueclient.New(estoqueURL)
+	client := estoqueclient.New(estoqueURL) // cliente responsável por comunicar com estoque
 
-	repository := notafiscal.NewRepository(db)
-	service := notafiscal.NewService(repository, client)
+	repository := notafiscal.NewRepository(db) // injeção de dependência
+	service := notafiscal.NewService(repository, client) // service recebe duas dependências para persistir dados no faturamento e no estoque usando o client
 	handler := notafiscal.NewHandler(service)
 
-	mux := http.NewServeMux()
+	mux := http.NewServeMux()  // mux da biblioteca padrão do GO para associar metodo com URL
 
-	mux.HandleFunc("GET /api/notas-fiscais", handler.Listar)
+	mux.HandleFunc("GET /api/notas-fiscais", handler.Listar) // mapeamentos
 	mux.HandleFunc("POST /api/notas-fiscais", handler.Criar)
 	mux.HandleFunc("POST /api/notas-fiscais/{id}/imprimir", handler.Imprimir)
 
@@ -43,7 +43,7 @@ func enableCORS(next http.Handler) http.Handler {
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusNoContent)
-			return
+			return // retorna para não enviar a options para endpoint
 		}
 		next.ServeHTTP(w, r)
 	})

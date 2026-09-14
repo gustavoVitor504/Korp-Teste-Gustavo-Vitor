@@ -9,7 +9,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func ConnectDatabase() *gorm.DB {
+func ConnectDatabase() *gorm.DB {  // conexões do banco com variáveis de ambiente
 	host := os.Getenv("DB_HOST")
 	port := ("5432")
 	user := os.Getenv("DB_USER")
@@ -25,7 +25,7 @@ func ConnectDatabase() *gorm.DB {
 		port,
 	)
 
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{}) // abre conexão
 
 	if err != nil {
 		log.Fatal("erro ao conectar ao banco:", err)

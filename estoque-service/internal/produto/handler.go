@@ -22,26 +22,26 @@ func NewHandler(service *Service) *Handler {
 func (h *Handler) Criar(w http.ResponseWriter, r *http.Request) {
 	var produto Produto
 	if err := json.NewDecoder(r.Body).Decode(&produto); err != nil {
-		http.Error(w, "JSON inválido", http.StatusBadRequest)
-		return
+		http.Error(w, "JSON inválido", http.StatusBadRequest) // decoder verifica se é
+		return               // possivel transformar esse body do json em um objeto Produto
 	}
 	if err := h.service.Criar(&produto); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+		http.Error(w, err.Error(), http.StatusBadRequest) // aqui ja foi convertido em obj
+		return                  // agora faz o service tentar criar e se der erro retorna
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(produto)
+	json.NewEncoder(w).Encode(produto) // retorna o produto criado em forma de json
 }
 
 func (h *Handler) Listar(w http.ResponseWriter, r *http.Request) {
 	produtos, err := h.service.Listar()
-	if err != nil {
+	if err != nil { // no get só o tratamento do service é necessário pois não recebemos nada
 		http.Error(w, "erro ao listar produtos", http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(produtos)
+	json.NewEncoder(w).Encode(produtos) // se não ter erro devolve lista de produtos em json
 }
 
 type itemBaixaRequest struct {
@@ -64,63 +64,63 @@ func (h *Handler) BaixarSaldo(w http.ResponseWriter, r *http.Request) {
 	var req baixarSaldoRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "JSON inválido", http.StatusBadRequest)
-		return
+		return // API de faturamento requisita baixar saldo na impressão e verifica formato json
 	}
 	if len(req.Itens) == 0 {
 		http.Error(w, "nenhum item informado", http.StatusBadRequest)
-		return
+		return // se não tiver item cai no erro
 	}
-
-	itens := make([]ItemQuantidade, 0, len(req.Itens))
+            // novo objeto / tamanho atual / capacidade(o que tem de produtos para cadastrar)
+	itens := make([]ItemQuantidade, 0, len(req.Itens)) // vai transformar em um novo formato
 	for _, i := range req.Itens {
 		itens = append(itens, ItemQuantidade{ProdutoID: i.ProdutoID, Quantidade: i.Quantidade})
 	}
 
 	atualizados, err := h.service.BaixarSaldo(itens)
 	if err != nil {
-		writeErro(w, err)
+		writeErro(w, err) // aqui joga os dados transformados na service para verificar possiveis erros
 		return
 	}
 
 	resp := make([]produtoInfoResponse, 0, len(atualizados))
-	for _, p := range atualizados {
+	for _, p := range atualizados { // transforma os dados dos produtos alterados para id desc e saldo
 		resp = append(resp, produtoInfoResponse{ID: p.ID, Descricao: p.Descricao, Saldo: p.Saldo})
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]any{"itens": resp})
+	json.NewEncoder(w).Encode(map[string]any{"itens": resp}) // devolve json dos produtos atualizados
 }
 
 // ReporSaldo é o endpoint interno de compensação (saga rollback).
 func (h *Handler) ReporSaldo(w http.ResponseWriter, r *http.Request) {
-	var req baixarSaldoRequest
+	var req baixarSaldoRequest // Api chama se caso der erro após baixar o saldo
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "JSON inválido", http.StatusBadRequest)
-		return
+		return        // verifica formato do json para repor o saldo
 	}
 
 	itens := make([]ItemQuantidade, 0, len(req.Itens))
-	for _, i := range req.Itens {
+	for _, i := range req.Itens {     // muda formato do json para o mesmo que se usa para faturar
 		itens = append(itens, ItemQuantidade{ProdutoID: i.ProdutoID, Quantidade: i.Quantidade})
 	}
 
 	if err := h.service.ReporSaldo(itens); err != nil {
 		http.Error(w, "erro ao repor saldo", http.StatusInternalServerError)
-		return
+		return     // verifica erro de requisição do service
 	}
-	w.WriteHeader(http.StatusNoContent)
+	w.WriteHeader(http.StatusNoContent) // retorna o statur para o backend
 }
 
 func writeErro(w http.ResponseWriter, err error) {
-	var errSaldo *ErrSaldoInsuficiente
+	var errSaldo *ErrSaldoInsuficiente    // função para padronizar os erros 
 
 	switch {
 	case errors.As(err, &errSaldo):
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusConflict)
-		json.NewEncoder(w).Encode(map[string]any{
+		json.NewEncoder(w).Encode(map[string]any{   // trata dos erros conhecidos
 			"erro":       "saldo_insuficiente",
-			"produtoId":  errSaldo.ProdutoID,
+			"produtoId":  errSaldo.ProdutoID,   // type de ErrSaldoInsuficiente no errors.go
 			"produto":    errSaldo.Produto,
 			"disponivel": errSaldo.Disponivel,
 			"solicitado": errSaldo.Solicitado,
@@ -130,19 +130,21 @@ func writeErro(w http.ResponseWriter, err error) {
 	default:
 		log.Printf("erro inesperado ao processar baixa de estoque: %v", err)
 		http.Error(w, "erro ao processar baixa de estoque", http.StatusInternalServerError)
-	}
+	} // se não estiver nos erros esperados devolve um default
 }
 func (h *Handler) Consultar(w http.ResponseWriter, r *http.Request) {
-	var req consultarRequest
+	var req consultarRequest  // consulta diferente do Listar() por devolve apenas os produtos pedidos
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "JSON inválido", http.StatusBadRequest)
-		return
+		return    // verifica formato do json
 	}
 	produtos, err := h.service.ConsultarPorIds(req.Ids)
-	if err != nil {
+	if err != nil { 
 		http.Error(w, "erro ao consultar produtos", http.StatusInternalServerError)
-		return
+		return   // trata dos erros provindos do service ex: ID inválido 
 	}
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(produtos)
+	json.NewEncoder(w).Encode(produtos)   // devolve json com os produtos pedidos
 }
+// metodo post para consultar serve para centralizar em uma única requisição ao invés
+// de mandar vários http get com o id do produto requisitado

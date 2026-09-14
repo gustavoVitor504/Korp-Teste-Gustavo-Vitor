@@ -7,7 +7,7 @@
   </div>
 
   <div *ngIf="mensagem" class="toast" [class.toast-ok]="mensagem.tipo === 'ok'" [class.toast-erro]="mensagem.tipo === 'erro'">
-    {{ mensagem.texto }}
+    {{ mensagem.texto }} <!--// toast para mudar visual de sucesso e erro + mensagem -->
   </div>
 
   <div class="grid">
@@ -24,12 +24,13 @@
         <div *ngIf="carregando" class="empty">Carregando produtos…</div>
 
         <ul class="produto-picker" *ngIf="!carregando && produtosDisponiveis.length">
-          <li *ngFor="let produto of produtosDisponiveis">
+          <li *ngFor="let produto of produtosDisponiveis"> <!-- percorre os itens disponiveis -->
             <div class="produto-item">
               <span class="produto-desc">
                 <span class="produto-codigo">{{ produto.codigo }}</span> — {{ produto.descricao }}
               </span>
               <span class="produto-saldo">saldo: {{ produto.saldo }}</span>
+              <!--// input de numero para colocar quantidade do produto que deseja-->
               <input
                 type="number"
                 class="qtd-input"
@@ -41,13 +42,13 @@
             </div>
           </li>
         </ul>
-
+        <!-- se não tiver nenhum produto disponível ele dá erro -->
         <div *ngIf="!carregando && !produtosDisponiveis.length" class="empty">
           Cadastre um produto antes de criar uma nota fiscal.
         </div>
       </div>
-
-      <button
+      <!-- botão de salvar para criar a nota-->
+      <button 
         type="button"
         class="btn"
         [disabled]="salvando || !produtosDisponiveis.length"
@@ -55,7 +56,7 @@
         {{ salvando ? 'Salvando…' : 'Criar nota fiscal' }}
       </button>
     </section>
-
+    <!-- // card do lado com as notas criadas-->
     <section class="card">
       <h2 class="card-title">Notas emitidas</h2>
 
@@ -69,11 +70,12 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let nota of notas">
+          <tr *ngFor="let nota of notas"> <!-- percorre as notas criadas -->
             <td class="numero-fiscal">{{ nota.numeroFormatado }}</td>
             <td><span class="stamp" [class]="'stamp-' + nota.status">{{ nota.status }}</span></td>
             <td class="itens-cell">{{ itensDaNota(nota) }}</td>
             <td>
+               <!-- botão de imprimir as notas que estão abertas verificadas pela função podeImprimir -->
               <button
                 type="button"
                 class="btn-outline btn-sm"
@@ -82,12 +84,14 @@
                 (click)="imprimir(nota)">
                 {{ imprimindoId === nota.id ? 'Imprimindo…' : 'Imprimir' }}
               </button>
+              <!-- se não pode não aparece -->
               <span *ngIf="!podeImprimir(nota)" class="sem-acao">—</span>
             </td>
+            <!-- frontend controla experiência do usuário porém a regra é testada realmente no backend -->
           </tr>
         </tbody>
       </table>
-
+      <!--       // caso não tenha nota ainda -->
       <div *ngIf="!notas.length" class="empty">Nenhuma nota fiscal emitida ainda.</div>
     </section>
   </div>

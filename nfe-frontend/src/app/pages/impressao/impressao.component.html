@@ -1,4 +1,5 @@
 <div class="container">
+  <!-- // clases no-print não aparece no relatório de impressão-->
   <div class="page-header no-print">
     <div>
       <span class="eyebrow">Relatórios</span>
@@ -21,10 +22,10 @@
       Notas Fiscais
     </button>
   </div>
-
+  <!--// mostrado somente no relatório impresso-->
   <div class="print-header">
     <h1>{{ abaAtiva === 'produtos' ? 'Relação de Produtos' : 'Relação de Notas Fiscais' }}</h1>
-    <span class="print-date">Emitido em {{ dataEmissao | date: 'dd/MM/yyyy HH:mm' }}</span>
+    <span class="print-date">Emitido em {{ dataEmissao | date: 'dd/MM/yyyy HH:mm' }}</span> <!--// date transforma data no formato pedido -->
   </div>
 
   <div *ngIf="carregando" class="empty">Carregando…</div>
@@ -38,6 +39,7 @@
         </tr>
       </thead>
       <tbody>
+        <!--// percorre os produtos para visualizar-->
         <tr *ngFor="let produto of produtos">
           <td>{{ produto.descricao }}</td>
           <td>{{ produto.saldo }}</td>
@@ -48,7 +50,7 @@
   </section>
 
   <section class="card" *ngIf="!carregando && abaAtiva === 'notas'">
-    <table *ngIf="notas.length">
+    <table *ngIf="notas.length"> <!--// tela de notas -->
       <thead>
         <tr>
           <th>Número</th>
@@ -57,8 +59,8 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let nota of notas">
-          <td class="numero-fiscal">{{ nota.numeroFormatado }}</td>
+        <tr *ngFor="let nota of notas"> <!--// percorre as notas para visualizar -->
+          <td class="numero-fiscal">{{ nota.numeroFormatado }}</td> <!--// formata o numero da nota para o padrão de 9 digitos -->
           <td><span class="stamp" [class]="'stamp-' + nota.status">{{ nota.status }}</span></td>
           <td>{{ itensDaNota(nota) }}</td>
         </tr>

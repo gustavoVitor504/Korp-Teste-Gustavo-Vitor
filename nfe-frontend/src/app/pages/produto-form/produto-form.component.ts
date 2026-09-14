@@ -17,27 +17,27 @@ export class ProdutoFormComponent implements OnInit {
   salvando = false;
   mensagem: { tipo: 'ok' | 'erro'; texto: string } | null = null;
 
-  private fb = inject(FormBuilder);
+  private fb = inject(FormBuilder); // injeção de dependências
   private produtoService = inject(ProdutoService);
 
-  form = this.fb.group({
+  form = this.fb.group({ // construtor do formulario 
     codigo: ['', [Validators.required, Validators.minLength(1)]],
     descricao: ['', [Validators.required, Validators.minLength(2)]],
     saldo: [0, [Validators.required, Validators.min(0)]],
   });
 
-  ngOnInit(): void {
+  ngOnInit(): void { // inicializa o componente e carrega os produtos
     this.carregarProdutos();
   }
 
   carregarProdutos(): void {
-    this.carregando = true;
-    this.produtoService.listar().subscribe({
+    this.carregando = true; // declara que está carregando
+    this.produtoService.listar().subscribe({ // chama service para escrever os produtos
       next: (produtos) => {
-        this.produtos = produtos;
-        this.carregando = false;
+        this.produtos = produtos; 
+        this.carregando = false; // recebe os produtos e declara que terminou carregamento
       },
-      error: () => {
+      error: () => { // tratamento de erro
         this.carregando = false;
         this.mensagem = { tipo: 'erro', texto: 'Não foi possível carregar os produtos.' };
       },
@@ -45,28 +45,28 @@ export class ProdutoFormComponent implements OnInit {
   }
 
   salvar(): void {
-    if (this.form.invalid) {
+    if (this.form.invalid) { // se formulário estiver inválido confrome o builder da erro
       this.form.markAllAsTouched();
       return;
     }
 
-    const produto: Produto = {
+    const produto: Produto = {  // recebe os valores do formulario
       codigo: this.form.value.codigo!.trim(),
       descricao: this.form.value.descricao!.trim(),
       saldo: this.form.value.saldo!,
     };
 
-    this.salvando = true;
-    this.mensagem = null;
+    this.salvando = true; // declara que está salvando
+    this.mensagem = null; // limpa mensagem
 
-    this.produtoService.criar(produto).subscribe({
+    this.produtoService.criar(produto).subscribe({ // chama service para criar
       next: () => {
-        this.salvando = false;
+        this.salvando = false; // não recebe nada, apenas declara que terminou de salvar
         this.mensagem = { tipo: 'ok', texto: `Produto "${produto.descricao}" cadastrado.` };
-        this.form.reset({ codigo: '', descricao: '', saldo: 0 });
-        this.carregarProdutos();
+        this.form.reset({ codigo: '', descricao: '', saldo: 0 }); // envia mensagem de sucesso e reseta o formulario
+        this.carregarProdutos(); // carrega os produtos de novo
       },
-      error: (err) => {
+      error: (err) => { // tratamento de erro
         this.salvando = false;
         const texto = err?.error?.message ?? 'Erro ao cadastrar produto. Verifique os dados.';
         this.mensagem = { tipo: 'erro', texto };

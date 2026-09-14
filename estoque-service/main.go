@@ -12,11 +12,11 @@ func main() {
 	db := config.ConnectDatabase() // aponta pro banco estoque_db
 	db.AutoMigrate(&produto.Produto{})
 
-	repository := produto.NewRepository(db)
+	repository := produto.NewRepository(db) // injeção de dependência
 	service := produto.NewService(repository)
 	handler := produto.NewHandler(service)
 
-	mux := http.NewServeMux()
+	mux := http.NewServeMux()  // mapeamento de endpoints
 	mux.HandleFunc("GET /api/produtos", handler.Listar)
 	mux.HandleFunc("POST /api/produtos", handler.Criar)
 	mux.HandleFunc("POST /api/produtos/baixar-saldo", handler.BaixarSaldo)
@@ -32,7 +32,7 @@ func enableCORS(next http.Handler) http.Handler {
 		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-		if r.Method == http.MethodOptions {
+		if r.Method == http.MethodOptions {  // tipo de requisição options não passa para o handler
 			w.WriteHeader(http.StatusNoContent)
 			return
 		}
